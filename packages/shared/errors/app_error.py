@@ -1,0 +1,18 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+
+@dataclass
+class AppError(Exception):
+    code: str
+    message: str
+    status_code: int = 500
+
+    def to_dict(self) -> dict[str, str | int]:
+        return {
+            "code": self.code,
+            "message": self.message,
+            "status_code": self.status_code,
+        }
+
