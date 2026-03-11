@@ -1,154 +1,227 @@
 # Порядок имплементации (Roadmap)
 
-Цель документа: зафиксировать последовательность разработки dual-source мониторинга билетов и критерии приемки по каждому этапу.
+Цель: зафиксировать последовательность разработки dual-source мониторинга, критерии приемки и отдельно выделить контейнеризацию/CI-CD/деплой.
 
 ## 1. Базовый foundation монорепозитория
 
 Что делаем:
-- Определяем единый стек (язык, фреймворк, ORM, брокер, БД, планировщик задач).
-- Создаем базовый шаблон для всех сервисов: `src`, `tests`, `Dockerfile`, `README`, healthcheck.
-- Подключаем единые модули логирования, конфигурации, ошибок, трассировки.
+- фиксируем единый стек;
+- создаем шаблон сервиса (`src`, `tests`, `Dockerfile`, `README`, `GET /health`);
+- подключаем общий `config/logging/errors`.
 
 Acceptance criteria:
-- Все сервисы запускаются локально через один entrypoint (`docker compose up` или аналог).
-- Для каждого сервиса работает `GET /health` с кодом `200`.
-- В репозитории есть единый lint/test pipeline, проходящий на CI.
+- все сервисы стартуют локально;
+- `GET /health` возвращает `200`;
+- есть базовый lint/test pipeline.
 
 ## 2. Доменная модель и контракты
 
 Что делаем:
-- Описываем сущности `Subscription`, `DirectAirlineStrategy`, `CheckResult`, `CheckJob`.
-- Фиксируем HTTP/API контракты и event-контракты между сервисами.
-- Добавляем миграции БД под минимально необходимые таблицы и индексы.
+- описываем `Subscription`, `DirectAirlineStrategy`, `CheckResult`, `CheckJob`;
+- фиксируем HTTP DTO и event-контракты;
+- добавляем стартовые миграции.
 
 Acceptance criteria:
-- Сущности и контракты версионированы в `packages/domain` и `packages/contracts`.
-- Миграции применяются на чистой БД без ручных правок.
-- Есть контрактные тесты на сериализацию/десериализацию DTO и событий.
+- модели и контракты версионированы в `packages/domain` и `packages/contracts`;
+- миграции применяются на чистой БД;
+- есть тесты сериализации/десериализации DTO и событий.
 
-## 3. Subscription Service + Telegram Bot (MVP поток создания подписки)
+## 3. Subscription Service + Telegram Bot (MVP создания подписки)
 
 Что делаем:
-- Реализуем сценарий: пользователь отправляет ссылку, условия багажа, частоту отчетов.
-- Сохраняем черновик подписки и статус процесса создания.
-- Добавляем команды паузы/возобновления/удаления подписки.
+- сценарий: ссылка, багаж, частота отчетов;
+- создание/пауза/возобновление/удаление подписки;
+- сохранение состояния процесса создания.
 
 Acceptance criteria:
-- Пользователь может создать подписку через Telegram без ручного вмешательства оператора.
-- `reports_per_day`, `baggage_mode`, `source_url` сохраняются и читаются корректно.
-- CRUD подписок покрыт интеграционными тестами.
+- подписка создается через Telegram end-to-end;
+- `source_url`, `baggage_mode`, `reports_per_day` сохраняются корректно;
+- CRUD покрыт интеграционными тестами.
 
 ## 4. Flight Extraction Service
 
 Что делаем:
-- Извлекаем из ссылки `origin`, `destination`, `departure_at`, `return_at`, `flight_number` (если доступен).
-- Нормализуем дату, валюту, код аэропортов/авиакомпаний.
-- Возвращаем устойчивый `flight_signature`.
+- извлекаем `origin/destination/departure_at/return_at/flight_number`;
+- нормализуем формат полей;
+- формируем `flight_signature`.
 
 Acceptance criteria:
-- На наборе тестовых ссылок точность извлечения ключевых полей не ниже 95%.
-- Некорректные/неподдерживаемые ссылки возвращают предсказуемую ошибку с reason-code.
-- Все поля после нормализации соответствуют единому формату домена.
+- точность извлечения на тестовом наборе не ниже 95%;
+- неподдерживаемые ссылки дают контролируемую ошибку с reason-code;
+- формат данных соответствует доменной схеме.
 
 ## 5. Airline Discovery Service
 
 Что делаем:
-- Определяем авиакомпанию по flight data.
-- Маппим авиакомпанию на официальный домен и при необходимости регион/локаль.
-- Кэшируем результаты и вводим ручной override для спорных случаев.
+- определяем авиакомпанию и официальный домен;
+- выбираем регион/локаль;
+- добавляем кэш и ручной override.
 
 Acceptance criteria:
-- Для топ-N авиакомпаний из целевого рынка определяется корректный официальный домен.
-- Кэш и override покрыты тестами.
-- Ошибки discovery не ломают создание подписки, а переводят ее в понятный статус ожидания.
+- для топ-N целевого рынка домен определяется корректно;
+- кэш/override покрыты тестами;
+- ошибки discovery не ломают подписку, а переводят ее в ожидающий статус.
 
 ## 6. Fast Price Provider Service (Канал A)
 
 Что делаем:
-- Подключаем быстрый источник цены (агрегатор/API/стабильный парсер).
-- Возвращаем `price_fast`, `currency`, `checked_at`, `source_meta`.
-- Обрабатываем rate limit и временные отказы.
+- подключаем быстрый источник цены;
+- возвращаем `price_fast/currency/source_meta/checked_at`;
+- обрабатываем rate-limit и временные ошибки.
 
 Acceptance criteria:
-- Среднее время fast-check укладывается в целевой SLA (например, до 2 секунд).
-- При временной недоступности источника результат помечается `fast_source_status=temporary_failure`.
-- В истории проверок сохраняется полный fast-результат.
+- среднее время fast-check укладывается в SLA;
+- временные сбои помечаются как `temporary_failure`;
+- результаты сохраняются в истории проверок.
 
-## 7. Direct Airline Strategy Service + lifecycle (Канал B стратегия)
+## 7. Direct Airline Strategy Service + lifecycle (Канал B)
 
 Что делаем:
-- Вводим хранение стратегий: `strategy_json`, `playwright_script`, `strategy_version`, `status`.
-- Реализуем состояния lifecycle: `discovery -> operational -> repair`.
-- Добавляем метрики качества: `success_rate`, `average_runtime_sec`, `last_verified_at`.
+- храним и версионируем стратегии;
+- вводим lifecycle `discovery -> operational -> repair`;
+- считаем метрики качества стратегий.
 
 Acceptance criteria:
-- Для новой авиакомпании можно создать первую версию стратегии и активировать ее.
-- Версионирование стратегий работает без перезаписи предыдущих версий.
-- Есть API для выбора активной стратегии по `airline_code`/`airline_domain`.
+- стратегия для новой авиакомпании создается и активируется;
+- версионирование не перезаписывает старые версии;
+- есть API выбора активной стратегии по `airline_code/airline_domain`.
 
-## 8. Browser Automation Service (исполнение direct-check)
+## 8. Browser Automation Service
 
 Что делаем:
-- Реализуем исполнение сохраненной стратегии через Playwright.
-- Извлекаем `direct_price`, `currency`, fare details, route/time validation.
-- Сохраняем screenshot + HTML/network artifacts.
+- исполняем direct-стратегии через Playwright;
+- извлекаем direct-price и детали тарифа;
+- сохраняем screenshot, HTML snapshot, network logs.
 
 Acceptance criteria:
-- По рабочей стратегии сервис стабильно возвращает direct-результат и screenshot.
-- Подтверждение соответствия рейсу (`is_match_confirmed`) формируется детерминированно.
-- При падении шага автоматизации формируется диагностический отчет для ремонта стратегии.
+- сервис стабильно возвращает direct-результат для валидной стратегии;
+- `is_match_confirmed` вычисляется детерминированно;
+- при падении формируется диагностический артефакт для ремонта.
 
 ## 9. Monitoring Orchestrator (dual-source pipeline)
 
 Что делаем:
-- Запускаем в одном `CheckJob` две обязательные подзадачи: `fast_check_task` и `direct_airline_check_task`.
-- Ждем оба результата и запускаем `reconcile_and_notify_task`.
-- Добавляем scheduler по `reports_per_day`.
+- в каждом `CheckJob` запускаем `fast_check_task` и `direct_airline_check_task`;
+- дожидаемся обоих результатов;
+- запускаем `reconcile_and_notify_task`;
+- применяем расписание по `reports_per_day`.
 
 Acceptance criteria:
-- Для каждой активной подписки в каждом цикле выполняются оба канала, а не fallback-цепочка.
-- `CheckResult` содержит поля обоих каналов и итог сравнения.
-- Ошибка одного канала не отменяет попытку второго; итог помечается корректным статусом частичной деградации.
+- оба канала обязательны в каждом цикле;
+- `CheckResult` хранит поканальные данные;
+- отказ одного канала не отменяет второй.
 
 ## 10. Reconciliation + Notification Service
 
 Что делаем:
-- Сравниваем `price_fast` и `price_direct` с учетом baggage и match-проверки.
-- Выбираем `better_source`, формируем `final_summary`.
-- Отправляем пользователю сообщение с обеими ценами, разницей, источниками и screenshot.
+- сравниваем `price_fast` и `price_direct` с учетом baggage/match;
+- выбираем `better_source`, формируем `final_summary`;
+- отправляем пользователю отчет с двумя ценами и screenshot.
 
 Acceptance criteria:
-- Формат уведомления стабилен и содержит все обязательные поля.
-- Пользователь получает отчет только при валидном завершении цикла или по заданной политике деградации.
-- Есть шаблоны уведомлений для user/dev-каналов.
+- формат отчета стабилен и полный;
+- поддержаны user/dev каналы уведомлений;
+- поведение при частичной деградации формализовано.
 
 ## 11. AI Strategy Builder/Repair Service
 
 Что делаем:
-- AI используется только для `discovery` и `repair` стратегий.
-- В обычных мониторинговых циклах AI не вызывается.
-- Добавляем процесс анализа неудачных прогонов и выпуск новой версии стратегии.
+- AI только для `discovery` и `repair`;
+- анализ неудачных прогонов и выпуск новой версии стратегии.
 
 Acceptance criteria:
-- При изменении сайта авиакомпании стратегия может быть отремонтирована и переведена в `operational`.
-- Доля успешных direct-check после ремонта растет относительно исходного состояния.
-- В логах и метриках отдельно видна стоимость и частота AI-вызовов.
+- при изменении сайта стратегия ремонтируется и возвращается в `operational`;
+- success rate direct-check растет после ремонта;
+- стоимость и частота AI вызовов наблюдаемы в метриках.
 
-## 12. Наблюдаемость, надежность, безопасность, readiness к production
+## 12. Контейнеризация и CI/CD + деплой на Azure (обязательный шаг)
+
+Почему отдельный шаг:
+- без него невозможно надежно выпускать изменения и поддерживать сервис в рабочем состоянии.
+
+Целевая low-cost схема:
+- `Azure VM (Linux, B1s)` как единый runtime-хост (прод);
+- `Azure Container Registry (ACR)` для хранения образов;
+- `GitHub Actions` для CI/CD;
+- `Docker Compose` на VM для запуска всех контейнеров;
+- `Nginx` как reverse proxy + TLS (Let's Encrypt).
+
+Где что разворачиваем:
+- На VM (в контейнерах):
+  - `telegram-bot`
+  - `subscription-service`
+  - `flight-extraction-service`
+  - `airline-discovery-service`
+  - `fast-price-provider-service`
+  - `direct-airline-strategy-service`
+  - `browser-automation-service`
+  - `ai-strategy-service`
+  - `monitoring-orchestrator`
+  - `notification-service`
+  - `postgres` (если небольшая нагрузка, допустимо на том же хосте)
+  - `redis`/очередь (если используем)
+  - `nginx`
+- В ACR:
+  - образы всех приложений выше с тегами `:git_sha` и `:latest-main`.
+- В GitHub:
+  - workflow CI (lint/test/build);
+  - workflow CD (push в ACR + деплой на VM по SSH).
+
+Матрица деплоя (пакет -> контейнер -> размещение):
+
+| Пакет/сервис | Имя контейнера | Образ в ACR | Куда деплоим |
+|---|---|---|---|
+| `apps/telegram-bot` | `telegram-bot` | `tracktheticket/telegram-bot` | Azure VM B1s (docker compose) |
+| `services/subscription-service` | `subscription-service` | `tracktheticket/subscription-service` | Azure VM B1s |
+| `services/flight-extraction-service` | `flight-extraction-service` | `tracktheticket/flight-extraction-service` | Azure VM B1s |
+| `services/airline-discovery-service` | `airline-discovery-service` | `tracktheticket/airline-discovery-service` | Azure VM B1s |
+| `services/fast-price-provider-service` | `fast-price-provider-service` | `tracktheticket/fast-price-provider-service` | Azure VM B1s |
+| `services/direct-airline-strategy-service` | `direct-airline-strategy-service` | `tracktheticket/direct-airline-strategy-service` | Azure VM B1s |
+| `services/browser-automation-service` | `browser-automation-service` | `tracktheticket/browser-automation-service` | Azure VM B1s |
+| `services/ai-strategy-service` | `ai-strategy-service` | `tracktheticket/ai-strategy-service` | Azure VM B1s |
+| `apps/monitoring-orchestrator` | `monitoring-orchestrator` | `tracktheticket/monitoring-orchestrator` | Azure VM B1s |
+| `services/notification-service` + `apps/notification-worker` | `notification-service` | `tracktheticket/notification-service` | Azure VM B1s |
+| инфраструктура БД | `postgres` | `postgres:16` | Azure VM B1s (на старте) |
+| инфраструктура очереди/кэша | `redis` | `redis:7` | Azure VM B1s (на старте) |
+| edge/proxy | `nginx` | `nginx:stable` | Azure VM B1s |
+
+Политика контейнеризации:
+- `shared packages` (`packages/*`) не деплоятся как отдельные контейнеры;
+- они встраиваются в образы сервисов на этапе сборки.
+
+Минимальный поток CI/CD:
+1. Pull Request: lint + unit/integration tests.
+2. Merge в `main`: build Docker images для каждого сервиса.
+3. Push images в ACR.
+4. CD job на VM: `docker compose pull && docker compose up -d`.
+5. Smoke-check: health endpoint каждого сервиса.
+6. При провале smoke-check: откат на предыдущие теги.
+
+Acceptance criteria:
+- у каждого сервиса есть production-ready Dockerfile;
+- CI гарантирует зеленые тесты до сборки образов;
+- CD автоматически раскатывает изменения на Azure VM;
+- после деплоя healthcheck всех контейнеров проходит;
+- rollback до предыдущего релиза выполняется одной командой/джобой;
+- все секреты хранятся в GitHub Secrets/Azure, не в репозитории.
+
+## 13. Наблюдаемость, надежность, безопасность, production readiness
 
 Что делаем:
-- Метрики по SLA/ошибкам/latency по каждому сервису и по каждому каналу.
-- Алерты на падение direct-check success rate и рост времени выполнения.
-- Ретраи, дедупликация задач, idempotency ключи, rate limiting, secrets management.
+- метрики SLA/latency/errors по сервисам и каналам A/B;
+- алерты на деградацию direct-check;
+- ретраи, дедупликация задач, idempotency, rate limiting;
+- аудит логов и безопасное хранение секретов.
 
 Acceptance criteria:
-- Дашборд показывает health dual-source пайплайна и ключевые бизнес-метрики.
-- Настроены алерты с проверенными каналами доставки.
-- Проведены нагрузочные и отказоустойчивые тесты, результаты задокументированы.
+- есть дашборд здоровья dual-source pipeline;
+- алерты протестированы и доставляются в нужные каналы;
+- проведены нагрузочные и отказоустойчивые проверки.
 
 ## Definition of Done для MVP
 
-- Пользователь создает подписку через Telegram.
-- В каждом цикле выполняются оба канала (A и B).
-- Пользователь получает отчет с двумя ценами, разницей, лучшим источником и screenshot с сайта авиакомпании.
-- Стратегии по авиакомпаниям версионируются и ремонтируются без остановки всей системы.
+- пользователь создает подписку через Telegram;
+- в каждом цикле мониторинга запускаются оба канала (A и B);
+- пользователь получает отчет с двумя ценами, разницей, лучшим источником и screenshot;
+- стратегии авиакомпаний версионируются и ремонтируются без остановки системы;
+- CI/CD и деплой на Azure VM работают автоматически.
