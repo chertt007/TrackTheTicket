@@ -21,11 +21,10 @@ if __name__ == "__main__":
     base_url = os.environ.get("SUBSCRIPTION_SERVICE_URL", "http://127.0.0.1:8001")
     manager = TelegramConversationManager(SubscriptionApiClient(base_url=base_url))
     server = create_server(settings, manager)
-    logger.info("Telegram Bot started on %s:%s", settings.host, settings.port)
+    logger.info("Telegram Bot starting on %s:%s", settings.host, settings.port)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         logger.info("Telegram Bot shutdown requested")
     finally:
         server.server_close()
-

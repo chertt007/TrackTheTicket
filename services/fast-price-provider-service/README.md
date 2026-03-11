@@ -1,1 +1,13 @@
-﻿# fast-price-provider-service  Минимальный сервисный каркас шага 1.  Запуск: python src/main.py
+﻿# fast-price-provider-service
+
+Базовый сервисный каркас на FastAPI.
+
+## Запуск
+
+```bash
+python src/main.py
+```
+
+## Endpoint
+
+- `GET /health`

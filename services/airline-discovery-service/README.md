@@ -1,1 +1,13 @@
-﻿# airline-discovery-service  Минимальный сервисный каркас шага 1.  Запуск: python src/main.py
+﻿# airline-discovery-service
+
+Базовый сервисный каркас на FastAPI.
+
+## Запуск
+
+```bash
+python src/main.py
+```
+
+## Endpoint
+
+- `GET /health`

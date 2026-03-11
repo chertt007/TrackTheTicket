@@ -1,10 +1,14 @@
-# telegram-bot
+﻿# telegram-bot
 
-MVP webhook-сервис для Telegram-диалога создания подписки.
+Webhook API для Telegram-диалога на FastAPI.
 
-Запуск:
+## Запуск
 
 ```bash
 python src/main.py
 ```
 
+## Endpoint
+
+- `GET /health`
+- `POST /telegram/update`

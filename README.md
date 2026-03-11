@@ -1,17 +1,44 @@
-# TTT Monorepo
+﻿# TTT Monorepo
 
-Монорепозиторий для сервиса мониторинга билетов с обязательной двухканальной проверкой цен:
+Монорепозиторий сервисов для dual-source мониторинга цен авиабилетов.
 
-- `Channel A`: быстрый источник (агрегатор/API/кэшированный парсер)
-- `Channel B`: прямой сайт авиакомпании
+## Технологический стек API
 
-## Структура
+- Python 3.10+
+- FastAPI
+- Uvicorn
+- SQLite (для MVP subscription-service)
 
-См. подробную структуру и назначение папок:
+## Быстрый старт
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+Запуск отдельного сервиса (пример):
+
+```bash
+python services/subscription-service/src/main.py
+```
+
+## Документация
 
 - `docs/architecture/monorepo-structure.md`
 - `docs/architecture/implementation-order.md`
-- `docs/architecture/system-flow.md` (базовая логика приложения, source of truth)
-- `docs/implementation_step1.md` (детальная реализация шага 1 + тесты)
-- `docs/implementation_step2.md` (доменные модели, контракты, миграции)
-- `docs/implementation_step3.md` (MVP Telegram + Subscription Service)
+- `docs/architecture/system-flow.md`
+- `docs/implementation_step1.md`
+- `docs/implementation_step2.md`
+- `docs/implementation_step3.md`
+
+## API
+
+Базовые HTTP endpoint'ы сервисов реализованы на FastAPI.
+
+- Healthcheck: `GET /health`
+- Subscription Service:
+  - `POST /subscriptions`
+  - `GET /subscriptions/{id}`
+  - `PATCH /subscriptions/{id}` (`action = pause|resume`)
+  - `DELETE /subscriptions/{id}`
+- Telegram Bot:
+  - `POST /telegram/update`

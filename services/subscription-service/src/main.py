@@ -22,7 +22,7 @@ if __name__ == "__main__":
     repository = SubscriptionRepository(db_path=db_path)
     subscription_service = SubscriptionService(repository)
     server = create_server(settings, subscription_service)
-    logger.info("Subscription Service started on %s:%s", settings.host, settings.port)
+    logger.info("Subscription Service starting on %s:%s", settings.host, settings.port)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
