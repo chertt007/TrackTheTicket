@@ -1,4 +1,9 @@
-# browser-automation-service
+﻿# browser-automation-service
 
-Service that executes browser automation scenarios.
-Runs Playwright-style strategy steps and returns structured extraction results.
+Service for running direct-check browser automation.
+
+## Endpoints
+
+- `GET /health`
+- `POST /direct-check`
+

@@ -1,4 +1,9 @@
-# direct-airline-strategy-service
+﻿# direct-airline-strategy-service
 
-Service for storing and resolving direct-airline strategies.
-Provides active strategy versions for airline-specific direct checks.
+Service for resolving direct-airline check strategies.
+
+## Endpoints
+
+- `GET /health`
+- `POST /strategies/resolve`
+

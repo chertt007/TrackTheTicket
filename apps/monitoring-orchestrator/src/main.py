@@ -1,4 +1,4 @@
-"""Entry point for browser automation service process startup."""
+"""Entry point for monitoring orchestrator process startup."""
 from __future__ import annotations
 
 import sys
@@ -9,19 +9,21 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
 
 from api import create_server
+from http_client import JsonHttpClient
+from orchestrator import MonitoringOrchestrator
 from packages.shared.config.settings import ServiceSettings
 from packages.shared.logging.logger import configure_logging
-from service import BrowserAutomationService
 
 
 if __name__ == "__main__":
-    settings = ServiceSettings.from_env("browser-automation-service")
+    settings = ServiceSettings.from_env("monitoring-orchestrator")
     logger = configure_logging(settings.service_name, settings.log_level)
-    server = create_server(settings, BrowserAutomationService())
-    logger.info("Browser Automation Service starting on %s:%s", settings.host, settings.port)
+    app_orchestrator = MonitoringOrchestrator(JsonHttpClient())
+    server = create_server(settings, app_orchestrator)
+    logger.info("Monitoring Orchestrator starting on %s:%s", settings.host, settings.port)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        logger.info("Browser Automation Service shutdown requested")
+        logger.info("Monitoring Orchestrator shutdown requested")
     finally:
         server.server_close()

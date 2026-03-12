@@ -1,27 +1,27 @@
-﻿# TTT Monorepo
+# TTT Monorepo
 
-Монорепозиторий сервисов для dual-source мониторинга цен авиабилетов.
+Monorepo of services for dual-source airline ticket price monitoring.
 
-## Технологический стек API
+## API stack
 
 - Python 3.10+
 - FastAPI
 - Uvicorn
-- SQLite (для MVP subscription-service)
+- SQLite (MVP for subscription-service)
 
-## Быстрый старт
+## Quick start
 
 ```bash
-python -m unittest discover -s tests -v
+python -m pytest -q
 ```
 
-Запуск отдельного сервиса (пример):
+Run a service (example):
 
 ```bash
 python services/subscription-service/src/main.py
 ```
 
-## Документация
+## Documentation
 
 - `docs/architecture/monorepo-structure.md`
 - `docs/architecture/implementation-order.md`
@@ -29,12 +29,16 @@ python services/subscription-service/src/main.py
 - `docs/implementation_step1.md`
 - `docs/implementation_step2.md`
 - `docs/implementation_step3.md`
+- `docs/implementation_step4.md`
 
 ## API
 
-Базовые HTTP endpoint'ы сервисов реализованы на FastAPI.
+Base endpoint implemented in all services/apps:
 
-- Healthcheck: `GET /health`
+- `GET /health`
+
+Current functional endpoints:
+
 - Subscription Service:
   - `POST /subscriptions`
   - `GET /subscriptions/{id}`
@@ -42,3 +46,21 @@ python services/subscription-service/src/main.py
   - `DELETE /subscriptions/{id}`
 - Telegram Bot:
   - `POST /telegram/update`
+- Flight Extraction Service:
+  - `POST /extract-flight`
+- Airline Discovery Service:
+  - `POST /discover-airline`
+- Fast Price Provider Service:
+  - `POST /fast-check`
+- Direct Airline Strategy Service:
+  - `POST /strategies/resolve`
+- Browser Automation Service:
+  - `POST /direct-check`
+- Notification Service:
+  - `POST /notifications/send`
+- AI Strategy Service:
+  - `GET /ai/provider-config`
+  - `POST /ai/select-model`
+  - `POST /strategies/repair`
+- Monitoring Orchestrator:
+  - `POST /run-check`

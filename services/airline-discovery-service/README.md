@@ -1,4 +1,9 @@
-# airline-discovery-service
+﻿# airline-discovery-service
 
-Service that enriches subscriptions with airline metadata.
-Resolves airline identity and domain from route or source URL inputs.
+Service for airline metadata discovery from flight source URLs.
+
+## Endpoints
+
+- `GET /health`
+- `POST /discover-airline`
+

@@ -1,4 +1,9 @@
-# notification-service
+﻿# notification-service
 
-Service for preparing and sending final user notifications.
-Builds user-facing check summaries and delivers them to external channels.
+Service for preparing and sending user notifications.
+
+## Endpoints
+
+- `GET /health`
+- `POST /notifications/send`
+

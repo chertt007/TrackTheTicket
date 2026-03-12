@@ -1,4 +1,9 @@
-# fast-price-provider-service
+﻿# fast-price-provider-service
 
-Service for quick price checks through aggregator providers.
-Returns fast-source price snapshots and status for downstream comparison.
+Service for quick synthetic fast-source price checks.
+
+## Endpoints
+
+- `GET /health`
+- `POST /fast-check`
+
