@@ -1,13 +1,4 @@
-﻿# ai-strategy-service
+# ai-strategy-service
 
-Базовый сервисный каркас на FastAPI.
-
-## Запуск
-
-```bash
-python src/main.py
-```
-
-## Endpoint
-
-- `GET /health`
+Service responsible for AI strategy lifecycle management.
+Stores, versions, and serves strategy payloads used by direct airline checks.

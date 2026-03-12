@@ -1,3 +1,4 @@
+"""Conversation state machine for Telegram subscription commands."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -8,15 +9,19 @@ class SubscriptionClientProtocol(Protocol):
     def create_subscription(
         self, source_url: str, baggage_mode: str, reports_per_day: int, chat_id: str
     ) -> dict:
+        """Create subscription."""
         ...
 
     def pause_subscription(self, subscription_id: str) -> dict:
+        """Pause subscription."""
         ...
 
     def resume_subscription(self, subscription_id: str) -> dict:
+        """Resume subscription."""
         ...
 
     def delete_subscription(self, subscription_id: str) -> dict:
+        """Delete subscription."""
         ...
 
 
@@ -28,10 +33,12 @@ class DraftSubscription:
 
 class TelegramConversationManager:
     def __init__(self, subscription_client: SubscriptionClientProtocol) -> None:
+        """Initialize object state and dependencies."""
         self.subscription_client = subscription_client
         self.sessions: dict[str, dict[str, object]] = {}
 
     def handle_message(self, chat_id: str, text: str) -> dict[str, str]:
+        """Handle message."""
         text = text.strip()
         if not text:
             return {"reply": "Пустое сообщение. Отправьте команду /new для создания подписки."}

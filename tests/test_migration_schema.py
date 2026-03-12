@@ -1,3 +1,4 @@
+"""Test module for validating behavior in test_migration_schema."""
 from pathlib import Path
 import sqlite3
 import unittest
@@ -9,6 +10,7 @@ MIGRATION_FILE = ROOT / "infra" / "migrations" / "0001_initial_schema.sql"
 
 class MigrationSchemaTests(unittest.TestCase):
     def test_initial_migration_applies_on_clean_db(self) -> None:
+        """Verify scenario: initial migration applies on clean db."""
         sql = MIGRATION_FILE.read_text(encoding="utf-8")
         conn = sqlite3.connect(":memory:")
         try:

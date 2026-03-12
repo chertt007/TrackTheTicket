@@ -1,13 +1,4 @@
-﻿# direct-airline-strategy-service
+# direct-airline-strategy-service
 
-Базовый сервисный каркас на FastAPI.
-
-## Запуск
-
-```bash
-python src/main.py
-```
-
-## Endpoint
-
-- `GET /health`
+Service for storing and resolving direct-airline strategies.
+Provides active strategy versions for airline-specific direct checks.

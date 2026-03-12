@@ -1,3 +1,4 @@
+"""Domain entity models used across the system."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
@@ -23,6 +24,7 @@ class Subscription:
     status: str
 
     def to_dict(self) -> dict[str, str | int | None]:
+        """Serialize object data into a dictionary payload."""
         payload = asdict(self)
         payload["departure_at"] = self.departure_at.isoformat()
         payload["return_at"] = self.return_at.isoformat() if self.return_at else None
@@ -30,6 +32,7 @@ class Subscription:
 
     @classmethod
     def from_dict(cls, data: dict[str, str | int | None]) -> "Subscription":
+        """Build an object instance from a dictionary payload."""
         return cls(
             id=str(data["id"]),
             source_url=str(data["source_url"]),

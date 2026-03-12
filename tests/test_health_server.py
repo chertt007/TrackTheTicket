@@ -1,3 +1,4 @@
+"""Test module for validating behavior in test_health_server."""
 import json
 import socket
 import threading
@@ -11,11 +12,13 @@ from packages.shared.runtime.http_service import create_http_server
 class HealthServerTests(unittest.TestCase):
     @staticmethod
     def _find_free_port() -> int:
+        """Find free port."""
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.bind(("127.0.0.1", 0))
             return int(sock.getsockname()[1])
 
     def setUp(self) -> None:
+        """Prepare test fixture state before each test."""
         self.port = self._find_free_port()
         settings = ServiceSettings(
             service_name="test-service",
@@ -29,11 +32,13 @@ class HealthServerTests(unittest.TestCase):
         self.thread.start()
 
     def tearDown(self) -> None:
+        """Clean up test fixture resources after each test."""
         self.server.shutdown()
         self.server.server_close()
         self.thread.join(timeout=2)
 
     def test_health_endpoint_returns_expected_payload(self) -> None:
+        """Verify scenario: health endpoint returns expected payload."""
         with urlopen(f"http://127.0.0.1:{self.port}/health", timeout=3) as response:
             body = response.read().decode("utf-8")
             payload = json.loads(body)

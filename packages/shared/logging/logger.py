@@ -1,9 +1,11 @@
+"""Shared infrastructure utilities used by multiple modules."""
 from __future__ import annotations
 
 import logging
 
 
 def configure_logging(service_name: str, level: str = "INFO") -> logging.Logger:
+    """Configure logging."""
     logger = logging.getLogger(service_name)
     if logger.handlers:
         return logger

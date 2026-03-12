@@ -1,3 +1,4 @@
+"""Contract models shared between services for HTTP and events."""
 from packages.contracts.events import (
     DirectCheckCompletedEvent,
     FastCheckCompletedEvent,

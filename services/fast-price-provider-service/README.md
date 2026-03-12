@@ -1,13 +1,4 @@
-﻿# fast-price-provider-service
+# fast-price-provider-service
 
-Базовый сервисный каркас на FastAPI.
-
-## Запуск
-
-```bash
-python src/main.py
-```
-
-## Endpoint
-
-- `GET /health`
+Service for quick price checks through aggregator providers.
+Returns fast-source price snapshots and status for downstream comparison.

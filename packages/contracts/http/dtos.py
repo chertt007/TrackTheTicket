@@ -1,3 +1,4 @@
+"""Contract models shared between services for HTTP and events."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
@@ -11,10 +12,12 @@ class CreateSubscriptionRequest:
     reports_per_day: int
 
     def to_dict(self) -> dict[str, str | int]:
+        """Serialize object data into a dictionary payload."""
         return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict[str, str | int]) -> "CreateSubscriptionRequest":
+        """Build an object instance from a dictionary payload."""
         return cls(
             source_url=str(data["source_url"]),
             baggage_mode=str(data["baggage_mode"]),
@@ -29,12 +32,14 @@ class CreateSubscriptionResponse:
     created_at: datetime
 
     def to_dict(self) -> dict[str, str]:
+        """Serialize object data into a dictionary payload."""
         payload = asdict(self)
         payload["created_at"] = self.created_at.isoformat()
         return payload
 
     @classmethod
     def from_dict(cls, data: dict[str, str]) -> "CreateSubscriptionResponse":
+        """Build an object instance from a dictionary payload."""
         return cls(
             subscription_id=str(data["subscription_id"]),
             status=str(data["status"]),
@@ -52,12 +57,14 @@ class CheckResultResponse:
     checked_at: datetime
 
     def to_dict(self) -> dict[str, str | float | None]:
+        """Serialize object data into a dictionary payload."""
         payload = asdict(self)
         payload["checked_at"] = self.checked_at.isoformat()
         return payload
 
     @classmethod
     def from_dict(cls, data: dict[str, str | float | None]) -> "CheckResultResponse":
+        """Build an object instance from a dictionary payload."""
         return cls(
             subscription_id=str(data["subscription_id"]),
             fast_source_price=float(data["fast_source_price"]) if data["fast_source_price"] else None,

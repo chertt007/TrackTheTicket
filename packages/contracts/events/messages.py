@@ -1,3 +1,4 @@
+"""Contract models shared between services for HTTP and events."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
@@ -14,12 +15,14 @@ class FastCheckCompletedEvent:
     occurred_at: datetime
 
     def to_dict(self) -> dict[str, str | float | None]:
+        """Serialize object data into a dictionary payload."""
         payload = asdict(self)
         payload["occurred_at"] = self.occurred_at.isoformat()
         return payload
 
     @classmethod
     def from_dict(cls, data: dict[str, str | float | None]) -> "FastCheckCompletedEvent":
+        """Build an object instance from a dictionary payload."""
         return cls(
             check_job_id=str(data["check_job_id"]),
             subscription_id=str(data["subscription_id"]),
@@ -44,12 +47,14 @@ class DirectCheckCompletedEvent:
     occurred_at: datetime
 
     def to_dict(self) -> dict[str, str | float | bool | None]:
+        """Serialize object data into a dictionary payload."""
         payload = asdict(self)
         payload["occurred_at"] = self.occurred_at.isoformat()
         return payload
 
     @classmethod
     def from_dict(cls, data: dict[str, str | float | bool | None]) -> "DirectCheckCompletedEvent":
+        """Build an object instance from a dictionary payload."""
         return cls(
             check_job_id=str(data["check_job_id"]),
             subscription_id=str(data["subscription_id"]),
@@ -71,12 +76,14 @@ class ReconcileAndNotifyRequestedEvent:
     triggered_at: datetime
 
     def to_dict(self) -> dict[str, str]:
+        """Serialize object data into a dictionary payload."""
         payload = asdict(self)
         payload["triggered_at"] = self.triggered_at.isoformat()
         return payload
 
     @classmethod
     def from_dict(cls, data: dict[str, str]) -> "ReconcileAndNotifyRequestedEvent":
+        """Build an object instance from a dictionary payload."""
         return cls(
             check_job_id=str(data["check_job_id"]),
             subscription_id=str(data["subscription_id"]),

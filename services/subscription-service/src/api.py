@@ -1,3 +1,4 @@
+"""HTTP handlers for subscription CRUD operations."""
 from __future__ import annotations
 
 from typing import Any
@@ -11,10 +12,12 @@ from service import SubscriptionService
 
 
 def create_app(settings: ServiceSettings, subscription_service: SubscriptionService) -> FastAPI:
+    """Create app."""
     app = FastAPI(title=settings.service_name, version=settings.app_version)
 
     @app.get("/health")
     def health() -> dict[str, str]:
+        """Return service health metadata."""
         return {
             "status": "ok",
             "service": settings.service_name,
@@ -24,6 +27,7 @@ def create_app(settings: ServiceSettings, subscription_service: SubscriptionServ
 
     @app.get("/subscriptions/{subscription_id}")
     def get_subscription(subscription_id: str) -> dict[str, Any]:
+        """Fetch subscription."""
         subscription = subscription_service.get_subscription(subscription_id)
         if subscription is None:
             return JSONResponse(status_code=404, content={"error": "subscription_not_found"})
@@ -31,6 +35,7 @@ def create_app(settings: ServiceSettings, subscription_service: SubscriptionServ
 
     @app.post("/subscriptions", status_code=201)
     def create_subscription(body: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
+        """Create subscription."""
         try:
             created = subscription_service.create_subscription(
                 source_url=str(body.get("source_url", "")),
@@ -53,6 +58,7 @@ def create_app(settings: ServiceSettings, subscription_service: SubscriptionServ
     def update_subscription(
         subscription_id: str, body: dict[str, Any] = Body(default_factory=dict)
     ) -> dict[str, Any]:
+        """Update subscription."""
         action = str(body.get("action", "")).lower()
         if action == "pause":
             updated = subscription_service.pause_subscription(subscription_id)
@@ -69,6 +75,7 @@ def create_app(settings: ServiceSettings, subscription_service: SubscriptionServ
 
     @app.delete("/subscriptions/{subscription_id}")
     def delete_subscription(subscription_id: str) -> dict[str, str]:
+        """Delete subscription."""
         deleted = subscription_service.delete_subscription(subscription_id)
         if not deleted:
             return JSONResponse(status_code=404, content={"error": "subscription_not_found"})
@@ -78,5 +85,6 @@ def create_app(settings: ServiceSettings, subscription_service: SubscriptionServ
 
 
 def create_server(settings: ServiceSettings, subscription_service: SubscriptionService):
+    """Create server."""
     app = create_app(settings, subscription_service)
     return create_uvicorn_server(app, settings)

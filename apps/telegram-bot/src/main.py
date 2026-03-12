@@ -1,3 +1,4 @@
+"""Entry point for Telegram bot process startup."""
 from __future__ import annotations
 
 import os

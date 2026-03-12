@@ -1,3 +1,4 @@
+"""Domain entity models used across the system."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
@@ -19,6 +20,7 @@ class DirectAirlineStrategy:
     last_verified_at: datetime | None
 
     def to_dict(self) -> dict[str, str | int | float | bool | None]:
+        """Serialize object data into a dictionary payload."""
         payload = asdict(self)
         payload["last_verified_at"] = (
             self.last_verified_at.isoformat() if self.last_verified_at else None
@@ -27,6 +29,7 @@ class DirectAirlineStrategy:
 
     @classmethod
     def from_dict(cls, data: dict[str, str | int | float | bool | None]) -> "DirectAirlineStrategy":
+        """Build an object instance from a dictionary payload."""
         return cls(
             id=str(data["id"]),
             airline_code=str(data["airline_code"]),

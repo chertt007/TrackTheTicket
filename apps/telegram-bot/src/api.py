@@ -1,3 +1,4 @@
+"""HTTP handlers for Telegram webhook updates."""
 from __future__ import annotations
 
 from typing import Any
@@ -11,10 +12,12 @@ from packages.shared.runtime.http_service import create_uvicorn_server
 
 
 def create_app(settings: ServiceSettings, manager: TelegramConversationManager) -> FastAPI:
+    """Create app."""
     app = FastAPI(title=settings.service_name, version=settings.app_version)
 
     @app.get("/health")
     def health() -> dict[str, str]:
+        """Return service health metadata."""
         return {
             "status": "ok",
             "service": settings.service_name,
@@ -24,6 +27,7 @@ def create_app(settings: ServiceSettings, manager: TelegramConversationManager) 
 
     @app.post("/telegram/update")
     def telegram_update(body: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
+        """Execute telegram update."""
         try:
             chat_id = str(body.get("chat_id", "")).strip()
             text = str(body.get("text", ""))
@@ -43,5 +47,6 @@ def create_app(settings: ServiceSettings, manager: TelegramConversationManager) 
 
 
 def create_server(settings: ServiceSettings, manager: TelegramConversationManager):
+    """Create server."""
     app = create_app(settings, manager)
     return create_uvicorn_server(app, settings)

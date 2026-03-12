@@ -1,3 +1,4 @@
+"""Test module for validating behavior in test_config."""
 import unittest
 
 from packages.shared.config.settings import ServiceSettings
@@ -5,6 +6,7 @@ from packages.shared.config.settings import ServiceSettings
 
 class ServiceSettingsTests(unittest.TestCase):
     def test_from_env_uses_defaults(self) -> None:
+        """Verify scenario: from env uses defaults."""
         settings = ServiceSettings.from_env("subscription-service", env={})
         self.assertEqual(settings.host, "0.0.0.0")
         self.assertEqual(settings.port, 8000)
@@ -12,6 +14,7 @@ class ServiceSettingsTests(unittest.TestCase):
         self.assertEqual(settings.log_level, "INFO")
 
     def test_from_env_parses_values(self) -> None:
+        """Verify scenario: from env parses values."""
         env = {
             "HOST": "127.0.0.1",
             "PORT": "8081",
@@ -27,6 +30,7 @@ class ServiceSettingsTests(unittest.TestCase):
         self.assertEqual(settings.app_version, "1.2.3")
 
     def test_port_validation_rejects_invalid_values(self) -> None:
+        """Verify scenario: port validation rejects invalid values."""
         with self.assertRaises(ValueError):
             ServiceSettings.from_env("fast-price-provider-service", env={"PORT": "bad"})
         with self.assertRaises(ValueError):

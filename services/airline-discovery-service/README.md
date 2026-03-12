@@ -1,13 +1,4 @@
-﻿# airline-discovery-service
+# airline-discovery-service
 
-Базовый сервисный каркас на FastAPI.
-
-## Запуск
-
-```bash
-python src/main.py
-```
-
-## Endpoint
-
-- `GET /health`
+Service that enriches subscriptions with airline metadata.
+Resolves airline identity and domain from route or source URL inputs.

@@ -1,3 +1,4 @@
+"""Test module for validating behavior in test_telegram_subscription_flow."""
 from __future__ import annotations
 
 import socket
@@ -30,11 +31,13 @@ from api import create_server
 class TelegramSubscriptionFlowTests(unittest.TestCase):
     @staticmethod
     def _find_free_port() -> int:
+        """Find free port."""
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.bind(("127.0.0.1", 0))
             return int(sock.getsockname()[1])
 
     def setUp(self) -> None:
+        """Prepare test fixture state before each test."""
         self.tmp_dir = tempfile.TemporaryDirectory()
         db_path = str(Path(self.tmp_dir.name) / "subscriptions.db")
         repo = SubscriptionRepository(db_path=db_path)
@@ -55,12 +58,14 @@ class TelegramSubscriptionFlowTests(unittest.TestCase):
         self.manager = TelegramConversationManager(self.client)
 
     def tearDown(self) -> None:
+        """Clean up test fixture resources after each test."""
         self.server.shutdown()
         self.server.server_close()
         self.thread.join(timeout=2)
         self.tmp_dir.cleanup()
 
     def test_create_subscription_through_telegram_dialog(self) -> None:
+        """Verify scenario: create subscription through telegram dialog."""
         chat_id = "tg-123"
 
         r1 = self.manager.handle_message(chat_id, "/new")
@@ -85,6 +90,7 @@ class TelegramSubscriptionFlowTests(unittest.TestCase):
         self.assertEqual(subscription["status"], "active")
 
     def test_pause_resume_delete_commands(self) -> None:
+        """Verify scenario: pause resume delete commands."""
         created = self.client.create_subscription(
             source_url="https://example.com/f",
             baggage_mode="cabin_only",

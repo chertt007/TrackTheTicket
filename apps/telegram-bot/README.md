@@ -1,14 +1,4 @@
-﻿# telegram-bot
+# telegram-bot
 
-Webhook API для Telegram-диалога на FastAPI.
-
-## Запуск
-
-```bash
-python src/main.py
-```
-
-## Endpoint
-
-- `GET /health`
-- `POST /telegram/update`
+Telegram bot module exposing a webhook API for subscription management.
+Handles `/new` dialog flow and `/pause`, `/resume`, `/delete` commands.

@@ -1,3 +1,4 @@
+"""Shared infrastructure utilities used by multiple modules."""
 from __future__ import annotations
 
 import os
@@ -15,6 +16,7 @@ class ServiceSettings:
     app_version: str = "0.1.0"
 
     def __post_init__(self) -> None:
+        """Validate dataclass state after initialization."""
         if not (1 <= self.port <= 65535):
             raise ValueError("PORT must be between 1 and 65535")
 
@@ -24,6 +26,7 @@ class ServiceSettings:
         service_name: str,
         env: Mapping[str, str] | None = None,
     ) -> "ServiceSettings":
+        """Execute from env."""
         source = env or os.environ
         raw_port = source.get("PORT", "8000")
         try:

@@ -1,3 +1,4 @@
+"""Domain entity models used across the system."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
@@ -21,12 +22,14 @@ class CheckResult:
     checked_at: datetime
 
     def to_dict(self) -> dict[str, str | float | bool | None]:
+        """Serialize object data into a dictionary payload."""
         payload = asdict(self)
         payload["checked_at"] = self.checked_at.isoformat()
         return payload
 
     @classmethod
     def from_dict(cls, data: dict[str, str | float | bool | None]) -> "CheckResult":
+        """Build an object instance from a dictionary payload."""
         return cls(
             id=str(data["id"]),
             check_job_id=str(data["check_job_id"]),

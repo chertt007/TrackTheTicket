@@ -1,13 +1,4 @@
-﻿# flight-extraction-service
+# flight-extraction-service
 
-Базовый сервисный каркас на FastAPI.
-
-## Запуск
-
-```bash
-python src/main.py
-```
-
-## Endpoint
-
-- `GET /health`
+Service for extracting and normalizing flight parameters.
+Converts incoming flight data to a canonical structure used across modules.

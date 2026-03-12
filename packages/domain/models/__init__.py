@@ -1,3 +1,4 @@
+"""Domain entity models used across the system."""
 from packages.domain.models.check_job import CheckJob
 from packages.domain.models.check_result import CheckResult
 from packages.domain.models.direct_airline_strategy import DirectAirlineStrategy

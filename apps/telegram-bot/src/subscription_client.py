@@ -1,3 +1,4 @@
+"""HTTP client used by Telegram bot to call subscription-service."""
 from __future__ import annotations
 
 import json
@@ -8,11 +9,13 @@ from urllib.request import Request, urlopen
 
 class SubscriptionApiClient:
     def __init__(self, base_url: str) -> None:
+        """Initialize object state and dependencies."""
         self.base_url = base_url.rstrip("/")
 
     def create_subscription(
         self, source_url: str, baggage_mode: str, reports_per_day: int, chat_id: str
     ) -> dict[str, Any]:
+        """Create subscription."""
         payload = {
             "source_url": source_url,
             "baggage_mode": baggage_mode,
@@ -22,18 +25,23 @@ class SubscriptionApiClient:
         return self._request("POST", "/subscriptions", payload)
 
     def get_subscription(self, subscription_id: str) -> dict[str, Any]:
+        """Fetch subscription."""
         return self._request("GET", f"/subscriptions/{subscription_id}")
 
     def pause_subscription(self, subscription_id: str) -> dict[str, Any]:
+        """Pause subscription."""
         return self._request("PATCH", f"/subscriptions/{subscription_id}", {"action": "pause"})
 
     def resume_subscription(self, subscription_id: str) -> dict[str, Any]:
+        """Resume subscription."""
         return self._request("PATCH", f"/subscriptions/{subscription_id}", {"action": "resume"})
 
     def delete_subscription(self, subscription_id: str) -> dict[str, Any]:
+        """Delete subscription."""
         return self._request("DELETE", f"/subscriptions/{subscription_id}")
 
     def _request(self, method: str, path: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+        """Perform outbound HTTP request and return parsed response."""
         data = json.dumps(payload).encode("utf-8") if payload is not None else None
         request = Request(
             f"{self.base_url}{path}",

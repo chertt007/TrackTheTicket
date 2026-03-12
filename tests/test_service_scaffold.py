@@ -1,3 +1,4 @@
+"""Test module for validating behavior in test_service_scaffold."""
 from pathlib import Path
 import unittest
 
@@ -8,6 +9,7 @@ SERVICES_DIR = ROOT / "services"
 
 class ServiceScaffoldTests(unittest.TestCase):
     def test_all_services_have_required_foundation_files(self) -> None:
+        """Verify scenario: all services have required foundation files."""
         required_paths = [
             Path("src/main.py"),
             Path("tests"),

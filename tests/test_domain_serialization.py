@@ -1,3 +1,4 @@
+"""Test module for validating behavior in test_domain_serialization."""
 from datetime import datetime
 import unittest
 
@@ -6,6 +7,7 @@ from packages.domain import CheckJob, CheckResult, DirectAirlineStrategy, Subscr
 
 class DomainSerializationTests(unittest.TestCase):
     def test_subscription_roundtrip(self) -> None:
+        """Verify scenario: subscription roundtrip."""
         model = Subscription(
             id="sub-1",
             source_url="https://example.com/search",
@@ -26,6 +28,7 @@ class DomainSerializationTests(unittest.TestCase):
         self.assertEqual(Subscription.from_dict(model.to_dict()), model)
 
     def test_strategy_roundtrip(self) -> None:
+        """Verify scenario: strategy roundtrip."""
         model = DirectAirlineStrategy(
             id="strat-1",
             airline_code="LH",
@@ -42,6 +45,7 @@ class DomainSerializationTests(unittest.TestCase):
         self.assertEqual(DirectAirlineStrategy.from_dict(model.to_dict()), model)
 
     def test_check_job_and_result_roundtrip(self) -> None:
+        """Verify scenario: check job and result roundtrip."""
         job = CheckJob(
             id="job-1",
             subscription_id="sub-1",

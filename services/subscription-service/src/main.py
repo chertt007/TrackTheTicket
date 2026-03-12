@@ -1,3 +1,4 @@
+"""Entry point that wires settings, repository, service, and server."""
 from __future__ import annotations
 
 import os

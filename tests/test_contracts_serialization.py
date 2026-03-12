@@ -1,3 +1,4 @@
+"""Test module for validating behavior in test_contracts_serialization."""
 from datetime import datetime
 import unittest
 
@@ -13,6 +14,7 @@ from packages.contracts import (
 
 class ContractsSerializationTests(unittest.TestCase):
     def test_http_dto_roundtrip(self) -> None:
+        """Verify scenario: http dto roundtrip."""
         req = CreateSubscriptionRequest(
             source_url="https://example.com/flight",
             baggage_mode="checked_bag",
@@ -37,6 +39,7 @@ class ContractsSerializationTests(unittest.TestCase):
         self.assertEqual(CheckResultResponse.from_dict(result.to_dict()), result)
 
     def test_event_roundtrip(self) -> None:
+        """Verify scenario: event roundtrip."""
         fast = FastCheckCompletedEvent(
             check_job_id="job-1",
             subscription_id="sub-1",
